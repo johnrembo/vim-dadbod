@@ -129,8 +129,10 @@ function! vim_dadbod_completion#omni(findstart, base)
   endif
 
   let columns = columns[0:s:limit('columns')]
-
-  return s:quote_results(bind_params + schemas + tables + aliases + columns + reserved_words + functions)
+  let quoted = s:quote_results(schemas + tables + aliases + columns)
+  let results = quoted + reserved_words + functions
+  call map(results, 'tolower(v:val.word)')
+  return results
 endfunction
 
 function! s:map_item(type, info_val, kind, index, item) abort

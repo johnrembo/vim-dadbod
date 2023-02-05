@@ -7,7 +7,8 @@ let s:reserved_words = vim_dadbod_completion#reserved_keywords#get_as_dict()
 let s:quote_rules = {
       \ 'camelcase': {val -> val =~# '[A-Z]' && val =~# '[a-z]'},
       \ 'space': {val -> val =~# '\s'},
-      \ 'reserved_word': {val -> has_key(s:reserved_words, toupper(val))}
+      \ 'reserved_word': {val -> has_key(s:reserved_words, tolower(val))},
+      \ 'has_lower': {val -> val =~# '[a-z]' && !has_key(s:reserved_words, tolower(val))}
       \ }
 
 function! s:map_and_filter(delimiter, list) abort
@@ -64,7 +65,7 @@ let s:oracle = {
 \   'requires_stdin': v:true,
 \   'schemas_query': printf(s:oracle_args, "COLUMN owner FORMAT a20;\nCOLUMN table_name FORMAT a25;\nSELECT T.owner, T.table_name FROM all_tables T JOIN all_users U ON T.owner = U.username WHERE U.common = 'NO' ORDER BY T.table_name;"),
 \   'schemas_parser': function('s:map_and_filter', ['\s\s\+']),
-\   'should_quote': function('s:should_quote', [['camelcase', 'reserved_word', 'space']]),
+\   'should_quote': function('s:should_quote', [['has_lower', 'space']]),
 \   'table_column_query': {table -> printf(s:oracle_base_column_query, "AND C.table_name='".table."'")},
 \ }
 
